@@ -11,7 +11,7 @@ async function main() {
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
 
-    const response = await fetch("http://localhost:8000/main.py");
+    const response = await fetch("main.py");
     const pythonCode = await response.text();
     pyodide.runPython(pythonCode);
 
