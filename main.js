@@ -1,0 +1,50 @@
+let pyodide = null;
+let canvas = document.getElementById('life');
+let ctx = canvas.getContext("2d");
+
+async function main() {
+
+    pyodide = await loadPyodide();
+    await pyodide.loadPackage(["numpy", "scipy"]);
+
+
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    const response = await fetch("http://localhost:8000/main.py");
+    const pythonCode = await response.text();
+    pyodide.runPython(pythonCode);
+
+    const updateGame = pyodide.globals.get("genLoop");
+
+    function draw(grid) {
+        const cellSize = 5;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        for (let y = 0; y < grid.length; y++) {
+            for (let x = 0; x < grid[y].length; x++) {
+                if (grid[y][x]) {
+                    ctx.fillStyle = "black";
+                    ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                }
+            }
+        }
+
+    }
+
+    function animate() {
+        const result = updateGame();  // Calls Python `update()`
+        draw(result.toJs());          // Convert Py proxy to JS array
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+
+}
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+main();
