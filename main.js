@@ -1,4 +1,5 @@
 let pyodide = null;
+let loader = document.getElementById("loader");
 let canvas = document.getElementById('life');
 let ctx = canvas.getContext("2d");
 
@@ -6,8 +7,7 @@ async function main() {
 
     pyodide = await loadPyodide();
     await pyodide.loadPackage(["numpy", "scipy"]);
-
-
+    
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
 
@@ -18,7 +18,7 @@ async function main() {
     const updateGame = pyodide.globals.get("genLoop");
 
     function draw(grid) {
-        const cellSize = 5;
+        const cellSize = 2;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         for (let y = 0; y < grid.length; y++) {
@@ -37,6 +37,9 @@ async function main() {
         draw(result.toJs());          // Convert Py proxy to JS array
         requestAnimationFrame(animate);
     }
+
+    loader.style.display = "none";
+    canvas.style.display = "block"
 
     animate();
 
